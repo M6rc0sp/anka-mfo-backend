@@ -35,6 +35,7 @@ export class ProjectionEngineImpl implements ProjectionEngine {
 
         let currentDate = this.startOfMonth(new Date(input.startDate));
         const endDate = this.startOfMonth(new Date(input.endDate));
+        const insurancePaidPolicies = new Set<string>();
 
         while (currentDate <= endDate) {
             const lifeStatus = this.getLifeStatus(currentDate, input);
@@ -43,7 +44,8 @@ export class ProjectionEngineImpl implements ProjectionEngine {
             const { insurancePremiums, insurancePayouts } = this.calculateInsurance(
                 currentDate,
                 input.insurances,
-                lifeStatus
+                lifeStatus,
+                insurancePaidPolicies
             );
             const financingPayments = this.calculateFinancingPayments(financingStates);
 
@@ -76,6 +78,7 @@ export class ProjectionEngineImpl implements ProjectionEngine {
                 exits,
                 insurancePremiums,
                 insurancePayouts,
+                financingPayments,
             });
 
             currentDate = this.addMonths(currentDate, 1);
@@ -134,7 +137,8 @@ export class ProjectionEngineImpl implements ProjectionEngine {
     private calculateInsurance(
         date: Date,
         insurances: InsurancePolicy[],
-        status: LifeStatus
+        status: LifeStatus,
+        paidPolicies: Set<string>
     ): { insurancePremiums: number; insurancePayouts: number } {
         let insurancePremiums = 0;
         let insurancePayouts = 0;
@@ -149,13 +153,15 @@ export class ProjectionEngineImpl implements ProjectionEngine {
                 return;
             }
 
-            if (status === 'dead' && policy.type === 'life') {
+            if (status === 'dead' && policy.type === 'life' && !paidPolicies.has(policy.id)) {
                 insurancePayouts += policy.coverageValue;
+                paidPolicies.add(policy.id);
                 return;
             }
 
-            if (status === 'invalid' && policy.type === 'invalidity') {
+            if (status === 'invalid' && policy.type === 'invalidity' && !paidPolicies.has(policy.id)) {
                 insurancePayouts += policy.coverageValue;
+                paidPolicies.add(policy.id);
             }
         });
 

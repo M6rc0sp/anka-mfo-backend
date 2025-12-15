@@ -7,6 +7,13 @@ import { env } from './config/env';
 import { createRepositories } from './infra/repositories/factory';
 import { errorHandler } from './http/middleware/error-handler';
 import { registerClientRoutes } from './http/routes/clients';
+import { registerProjectionRoutes } from './http/routes/projections';
+import { registerSimulationRoutes } from './http/routes/simulations';
+import { registerRealizedRoutes } from './http/routes/realized';
+import { registerComparisonRoutes } from './http/routes/comparison';
+import { registerAllocationRoutes } from './http/routes/allocations';
+import { registerTransactionRoutes } from './http/routes/transactions';
+import { registerInsuranceRoutes } from './http/routes/insurances';
 
 export async function createApp(): Promise<FastifyInstance> {
     const fastify = Fastify({
@@ -87,6 +94,13 @@ export async function createApp(): Promise<FastifyInstance> {
 
     // Register routes
     await registerClientRoutes(fastify, repositories);
+    await registerSimulationRoutes(fastify, repositories);
+    await registerProjectionRoutes(fastify, repositories);
+    await registerRealizedRoutes(fastify, repositories);
+    await registerComparisonRoutes(fastify, repositories);
+    await registerAllocationRoutes(fastify, repositories);
+    await registerTransactionRoutes(fastify, repositories);
+    await registerInsuranceRoutes(fastify, repositories);
 
     // Health check endpoint
     fastify.get('/health', async () => {

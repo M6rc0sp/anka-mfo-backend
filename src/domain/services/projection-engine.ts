@@ -55,6 +55,7 @@ export interface MonthlyProjection {
     exits: number;
     insurancePremiums: number;
     insurancePayouts: number;
+    financingPayments: number;
 }
 
 export interface YearlyProjection {
