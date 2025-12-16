@@ -1,9 +1,13 @@
+# ============================================
+# Anka MFO Backend - Optimized Dockerfile
+# ============================================
+
 # Build stage
 FROM node:24-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files first (better layer caching)
 COPY package*.json ./
 
 # Install dependencies (generates lockfile if missing)
@@ -15,60 +19,62 @@ COPY . .
 # Build TypeScript
 RUN npm run build
 
-# Development stage
+# ============================================
+# Development stage (OPTIMIZED)
+# ============================================
 FROM node:24-alpine AS development
-
-WORKDIR /app
 
 # Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+# Create non-root user and app directory with correct ownership
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001 \
+    && mkdir -p /app && chown -R nodejs:nodejs /app
+
+WORKDIR /app
+
+# Switch to nodejs user
+USER nodejs
 
 # Copy package files
-COPY package*.json ./
+COPY --chown=nodejs:nodejs package*.json ./
 
 # Install dependencies
 RUN npm install
 
 # Copy source code
-COPY . .
-
-# Change ownership
-RUN chown -R nodejs:nodejs .
-
-USER nodejs
+COPY --chown=nodejs:nodejs . .
 
 EXPOSE 3333
 
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["npm", "run", "dev"]
 
-# Production stage
+# ============================================
+# Production stage (OPTIMIZED)
+# ============================================
 FROM node:24-alpine AS production
-
-WORKDIR /app
 
 # Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+# Create non-root user and app directory with correct ownership
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001 \
+    && mkdir -p /app && chown -R nodejs:nodejs /app
+
+WORKDIR /app
+
+# Switch to nodejs user
+USER nodejs
 
 # Copy package files
-COPY package*.json ./
+COPY --chown=nodejs:nodejs package*.json ./
 
 # Install only production dependencies
 RUN npm install --omit=dev
 
 # Copy built application from builder
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-
-# Change ownership
-RUN chown -R nodejs:nodejs .
-
-USER nodejs
 
 EXPOSE 3333
 
