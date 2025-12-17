@@ -133,7 +133,7 @@ export interface SimulationVersion {
     id: string;
     simulationId: string;
     versionNumber: number;
-    snapshot: Record<string, unknown>;
+    snapshot: unknown;
     createdAt: Date;
 }
 
