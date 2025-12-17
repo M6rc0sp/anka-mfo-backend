@@ -80,7 +80,7 @@ export interface IInsuranceRepository {
  * SimulationVersionRepository - Interface para operações com histórico de versões
  */
 export interface ISimulationVersionRepository {
-    create(simulationId: string, data: Omit<SimulationVersion, 'id' | 'createdAt'>): Promise<SimulationVersion>;
+    create(simulationId: string, data: { snapshot: unknown; versionNumber?: number }): Promise<SimulationVersion>;
     findById(id: string): Promise<SimulationVersion | null>;
     findBySimulationId(simulationId: string): Promise<SimulationVersion[]>;
     findAll(): Promise<SimulationVersion[]>;
