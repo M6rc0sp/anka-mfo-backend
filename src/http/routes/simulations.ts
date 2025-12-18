@@ -29,7 +29,22 @@ export async function registerSimulationRoutes(app: FastifyInstance, repositorie
                             success: { type: 'boolean' },
                             data: {
                                 type: 'array',
-                                items: { type: 'object' },
+                                items: {
+                                    type: 'object',
+                                    properties: {
+                                        id: { type: 'string' },
+                                        clientId: { type: 'string' },
+                                        name: { type: 'string' },
+                                        description: { type: 'string' },
+                                        status: { type: 'string' },
+                                        initialCapital: { type: 'number' },
+                                        monthlyContribution: { type: 'number' },
+                                        inflationRate: { type: 'number' },
+                                        yearsProjection: { type: 'number' },
+                                        createdAt: { type: 'string' },
+                                        updatedAt: { type: 'string' },
+                                    },
+                                },
                             },
                         },
                         required: ['success', 'data'],

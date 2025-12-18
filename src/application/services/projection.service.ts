@@ -123,8 +123,8 @@ export class ProjectionService {
                 name: insurance.description ?? 'Seguro',
                 monthlyPremium: Number(insurance.monthlyCost),
                 coverageValue: Number(insurance.coverageAmount),
-                startDate: insurance.startDate,
-                endDate: insurance.endDate ?? undefined,
+                startDate: new Date(insurance.startDate),
+                endDate: insurance.endDate ? new Date(insurance.endDate) : undefined,
             };
         });
     }
