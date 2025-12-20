@@ -88,7 +88,10 @@ export class ProjectionEngineImpl implements ProjectionEngine {
     }
 
     private getMonthlyRate(annual: number, inflation: number): number {
-        const realRate = (1 + annual) / (1 + inflation) - 1;
+        // Converte de porcentagem para decimal se necessário (ex: 8.5 -> 0.085)
+        const annualDecimal = annual > 1 ? annual / 100 : annual;
+        const inflationDecimal = inflation > 1 ? inflation / 100 : inflation;
+        const realRate = (1 + annualDecimal) / (1 + inflationDecimal) - 1;
         return Math.pow(1 + realRate, 1 / 12) - 1;
     }
 
@@ -191,7 +194,9 @@ export class ProjectionEngineImpl implements ProjectionEngine {
     }
 
     private updatePropertyAssets(current: number, inflationRate: number): number {
-        const monthlyInflation = Math.pow(1 + inflationRate, 1 / 12) - 1;
+        // Converte de porcentagem para decimal se necessário (ex: 3.5 -> 0.035)
+        const inflationDecimal = inflationRate > 1 ? inflationRate / 100 : inflationRate;
+        const monthlyInflation = Math.pow(1 + inflationDecimal, 1 / 12) - 1;
         return current * (1 + monthlyInflation);
     }
 

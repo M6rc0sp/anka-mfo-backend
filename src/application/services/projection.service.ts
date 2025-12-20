@@ -39,14 +39,31 @@ export class ProjectionService {
 
         const client = await this.clientRepository.findById(simulation.clientId);
         const allocations = await this.allocationRepository.findBySimulationId(simulationId);
-        const transactions = await this.loadTransactionsForAllocations(allocations);
+        const dbTransactions = await this.loadTransactionsForAllocations(allocations);
         const insurances = await this.insuranceRepository.findBySimulationId(simulationId);
         const lifeStatus = this.resolveLifeStatus(payload.lifeStatus, client?.status);
+
+        // Calcular taxa de retorno ponderada das alocações se não foi passada
+        const interestRate = payload.interestRate ?? this.calculateWeightedReturn(allocations);
+
+        // Adicionar aporte mensal da simulação como transação recorrente
+        const transactions: TransactionTimeline[] = [...dbTransactions];
+        
+        if (simulation.monthlyContribution && Number(simulation.monthlyContribution) > 0) {
+            transactions.push({
+                type: 'deposit',
+                name: 'Aporte Mensal',
+                value: Number(simulation.monthlyContribution),
+                startDate: payload.startDate,
+                endDate: payload.endDate,
+                interval: 'monthly',
+            });
+        }
 
         const engineInput: ProjectionInput = {
             startDate: payload.startDate,
             endDate: payload.endDate,
-            interestRate: payload.interestRate ?? 0,
+            interestRate,
             inflationRate: payload.inflationRate ?? 0,
             lifeStatus,
             lifeStatusChangeDate: payload.lifeStatusChangeDate,
@@ -56,6 +73,20 @@ export class ProjectionService {
         };
 
         return this.engine.calculate(engineInput);
+    }
+
+    // Calcula a taxa de retorno ponderada baseada nas alocações
+    private calculateWeightedReturn(allocations: Array<{ initialValue: number; annualReturn?: number | null }>): number {
+        const totalValue = allocations.reduce((sum, a) => sum + Number(a.initialValue || 0), 0);
+        if (totalValue === 0) return 8; // Default 8% ao ano
+
+        const weightedSum = allocations.reduce((sum, a) => {
+            const value = Number(a.initialValue || 0);
+            const returnRate = Number(a.annualReturn || 0);
+            return sum + (value * returnRate);
+        }, 0);
+
+        return weightedSum / totalValue; // Retorna em porcentagem (ex: 9.5 para 9.5%)
     }
 
     private resolveLifeStatus(requested?: LifeStatus, clientStatus?: string): LifeStatus {
