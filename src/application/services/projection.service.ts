@@ -48,7 +48,7 @@ export class ProjectionService {
 
         // Adicionar aporte mensal da simulação como transação recorrente
         const transactions: TransactionTimeline[] = [...dbTransactions];
-        
+
         if (simulation.monthlyContribution && Number(simulation.monthlyContribution) > 0) {
             transactions.push({
                 type: 'deposit',
