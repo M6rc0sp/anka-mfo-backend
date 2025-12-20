@@ -1,6 +1,6 @@
 import { db } from '../../db/connect';
 import { allocations } from '../../db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import {
     Allocation,
     CreateAllocationInput,
@@ -67,12 +67,12 @@ export class AllocationRepository implements IAllocationRepository {
     }
 
     async findBySimulationId(simulationId: string): Promise<Allocation[]> {
-        const results = await db
-            .select()
-            .from(allocations)
-            .where(eq(allocations.simulationId, simulationId));
+        // Use raw SQL to ensure we get all columns including allocationDate
+        const results = await db.execute(
+            sql`SELECT * FROM allocations WHERE simulation_id = ${simulationId}`
+        );
 
-        return results.map(mapToAllocation);
+        return (results.rows as any[]).map(mapToAllocationFromRaw);
     }
 
     async findAll(): Promise<Allocation[]> {
@@ -158,5 +158,21 @@ function mapToAllocation(data: any): Allocation {
         allocationDate: data.allocationDate ? new Date(data.allocationDate).toISOString().split('T')[0] : null,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
+    };
+}
+
+// Mapper for raw SQL results (snake_case column names)
+function mapToAllocationFromRaw(data: any): Allocation {
+    return {
+        id: data.id,
+        simulationId: data.simulation_id,
+        type: data.type,
+        description: data.description,
+        percentage: Number(data.percentage),
+        initialValue: Number(data.initial_value),
+        annualReturn: Number(data.annual_return),
+        allocationDate: data.allocation_date ? new Date(data.allocation_date).toISOString().split('T')[0] : null,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
     };
 }

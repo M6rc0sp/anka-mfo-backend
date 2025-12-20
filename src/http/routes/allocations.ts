@@ -41,6 +41,9 @@ export async function registerAllocationRoutes(app: FastifyInstance, repositorie
                                         percentage: { type: 'number' },
                                         initialValue: { type: 'number' },
                                         annualReturn: { type: 'number' },
+                                        allocationDate: { type: 'string', nullable: true },
+                                        createdAt: { type: 'string' },
+                                        updatedAt: { type: 'string' },
                                     },
                                 },
                             },
@@ -109,6 +112,7 @@ export async function registerAllocationRoutes(app: FastifyInstance, repositorie
                         percentage: { type: 'number', minimum: 0, maximum: 100 },
                         initialValue: { type: 'number', minimum: 0 },
                         annualReturn: { type: 'number' },
+                        allocationDate: { type: 'string' },
                     },
                 },
                 response: {
@@ -157,6 +161,7 @@ export async function registerAllocationRoutes(app: FastifyInstance, repositorie
                         percentage: { type: 'number', minimum: 0, maximum: 100 },
                         initialValue: { type: 'number', minimum: 0 },
                         annualReturn: { type: 'number' },
+                        allocationDate: { type: 'string' },
                     },
                 },
                 response: {
