@@ -43,7 +43,8 @@ export class AllocationController {
                 percentage: data.percentage,
                 initialValue: data.initialValue,
                 annualReturn: data.annualReturn,
-            });
+                allocationDate: data.allocationDate,
+            } as any);
             return reply.status(201).send({ success: true, data: allocation });
         } catch (error) {
             return reply.status(400).send({ success: false, error: 'Erro ao criar alocação' });

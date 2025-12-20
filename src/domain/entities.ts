@@ -92,6 +92,7 @@ export interface Allocation {
     percentage: number;
     initialValue: number;
     annualReturn: number;
+    allocationDate?: string | null;
     createdAt: Date;
     updatedAt: Date;
 }

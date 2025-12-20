@@ -36,6 +36,7 @@ export class AllocationRepository implements IAllocationRepository {
                 percentage: input.percentage,
                 initialValue: (input as any).initialValue,
                 annualReturn: (input as any).annualReturn ?? 0,
+                allocationDate: (input as any).allocationDate ? new Date((input as any).allocationDate) : new Date(),
             };
 
             const result = await db.insert(allocations).values(insertData as any).returning();
@@ -122,6 +123,10 @@ export class AllocationRepository implements IAllocationRepository {
             updateData.annualReturn = (input as any).annualReturn;
         }
 
+        if ((input as any).allocationDate !== undefined) {
+            updateData.allocationDate = new Date((input as any).allocationDate);
+        }
+
         const result = await db
             .update(allocations)
             .set(updateData)
@@ -150,6 +155,7 @@ function mapToAllocation(data: any): Allocation {
         percentage: Number(data.percentage),
         initialValue: Number(data.initialValue),
         annualReturn: Number(data.annualReturn),
+        allocationDate: data.allocationDate ? new Date(data.allocationDate).toISOString().split('T')[0] : null,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
     };

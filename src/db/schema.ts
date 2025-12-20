@@ -83,6 +83,7 @@ export const allocations = pgTable(
         percentage: decimal('percentage', { precision: 5, scale: 2 }).notNull(),
         initialValue: decimal('initial_value', { precision: 15, scale: 2 }).notNull(),
         annualReturn: decimal('annual_return', { precision: 5, scale: 2 }).default('0'),
+        allocationDate: date('allocation_date').defaultNow(),
         createdAt: timestamp('created_at').defaultNow(),
         updatedAt: timestamp('updated_at').defaultNow(),
     },

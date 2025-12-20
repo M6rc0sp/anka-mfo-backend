@@ -140,6 +140,7 @@ export const createAllocationSchema = z.object({
     percentage: z.number().min(0).max(100),
     initialValue: z.number().min(0),
     annualReturn: z.number().optional(),
+    allocationDate: z.string().optional(),
 });
 
 export const updateAllocationSchema = createAllocationSchema.partial().omit({ simulationId: true });
@@ -152,6 +153,7 @@ export const allocationResponseSchema = z.object({
     percentage: z.number(),
     initialValue: z.number(),
     annualReturn: z.number(),
+    allocationDate: z.string().nullable().optional(),
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
 });
