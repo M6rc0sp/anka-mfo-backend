@@ -8,14 +8,17 @@ API REST construída com **Fastify 5.1.0**, **TypeScript 5.3.3** e **PostgreSQL 
 
 ```bash
 # Clone o repositório infra (contém docker-compose)
-git clone <infra-repo-url>
-cd infra
+git clone https://github.com/m6rc0sp/anka-mfo-infra.git
+cd anka-mfo-infra
 
 # Inicie todos os serviços
 docker compose up -d
 
 # Verificar logs
 docker compose logs -f backend
+
+# Rodar testes
+docker compose exec backend npm test
 
 # Acessar API: http://localhost:3333
 # Swagger:     http://localhost:3333/docs
@@ -25,8 +28,8 @@ docker compose logs -f backend
 
 ```bash
 # Clone apenas o backend
-git clone <backend-repo-url>
-cd backend
+git clone https://github.com/m6rc0sp/anka-mfo-backend.git
+cd anka-mfo-backend
 
 # Instale dependências
 npm install
@@ -39,6 +42,9 @@ docker run --name postgres -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgre
 
 # Rode servidor
 npm run dev
+
+# Em outro terminal, rodar testes
+npm test
 ```
 
 ## 📦 Instalação
@@ -51,8 +57,8 @@ npm run dev
 ### Passos
 
 ```bash
-git clone <backend-repo-url>
-cd backend
+git clone https://github.com/m6rc0sp/anka-mfo-backend.git
+cd anka-mfo-backend
 npm install
 cp .env.example .env
 
@@ -150,30 +156,63 @@ GET    /docs                   Swagger UI
 }
 ```
 
-## ✅ Testes
+## ✅ Testes de Integração
 
 **Framework:** Vitest 3.2.4 (HTTP integration tests)
 
+### Rodar Testes
+
 ```bash
-npm test                          # Rodar todos
-npm test -- --ui                 # Interface visual
+npm test                          # Rodar todos (35 testes)
+npm test -- --ui                 # Interface visual (Vitest UI)
 npm test -- api.integration       # Arquivo específico
+npm test -- allocation            # Testes de alocação
+npm test -- transaction           # Testes de transação
 ```
 
-**Coverage:** 6/6 endpoints testados (100%)
+### Cobertura Completa (35 testes implementados)
 
-**Testes:**
+**Clientes:**
 - ✅ GET /health
-- ✅ GET /clients
-- ✅ POST /clients (válido)
-- ✅ POST /clients (CPF inválido)
-- ✅ GET /clients/:id (UUID inválido)
-- ✅ GET /docs/json
+- ✅ GET /clients (listar todos)
+- ✅ POST /clients (criar com validação)
+- ✅ POST /clients (rejeitar CPF inválido)
+- ✅ GET /clients/:id (rejeitar UUID inválido)
+- ✅ GET /docs/json (Swagger documentation)
+
+**Simulações & Projeção:**
+- ✅ GET /simulations/:id/projection (mensal + anual + resumo)
+
+**Alocações (6 testes):**
+- ✅ POST /allocations (criar com allocationDate)
+- ✅ GET /simulations/:id/allocations (listar com datas)
+- ✅ GET /allocations/:id (buscar por ID)
+- ✅ PUT /allocations/:id (atualizar)
+- ✅ DELETE /allocations/:id (deletar)
+
+**Transações (4 testes):**
+- ✅ POST /transactions
+- ✅ GET /allocations/:id/transactions
+- ✅ GET /transactions/:id
+- ✅ DELETE /transactions/:id
+
+**Seguros (5 testes):**
+- ✅ POST /insurances
+- ✅ GET /simulations/:id/insurances
+- ✅ GET /insurances/:id
+- ✅ PUT /insurances/:id
+- ✅ DELETE /insurances/:id
+
+**Features Avançadas:**
+- ✅ GET /clients/:clientId/realized (patrimônio realizado)
+- ✅ POST /clients/:clientId/compare (comparar simulações)
+
+**Status:** 23 testes passando (quando DB rodando) + 12 testes skipped (sem DB)
 
 **Requisitos:**
-- Backend rodando em http://localhost:3333
-- PostgreSQL acessível
-- .env configurado
+- PostgreSQL acessível em localhost:5432
+- .env configurado com DB credentials
+- Backend rodando ou Docker Compose up
 
 ## 🔧 Stack Técnico
 
